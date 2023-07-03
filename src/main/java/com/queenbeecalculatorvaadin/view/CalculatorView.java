@@ -2,7 +2,9 @@ package com.queenbeecalculatorvaadin.view;
 
 import com.queenbeecalculatorvaadin.model.CalculatorModel;
 import com.queenbeecalculatorvaadin.service.CalculatorService;
+import com.queenbeecalculatorvaadin.service.PdfGeneratorService;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -13,6 +15,9 @@ import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -24,13 +29,16 @@ public class CalculatorView extends VerticalLayout {
     private static final Logger LOGGER = Logger.getLogger(CalculatorView.class.getName());
 
     private CalculatorService calculatorService;
+    private PdfGeneratorService pdfGeneratorService;
 
-    public CalculatorView(CalculatorService calculatorService) {
+    public CalculatorView(CalculatorService calculatorService, PdfGeneratorService pdfGeneratorService) throws IOException {
         this.calculatorService = calculatorService;
+        this.pdfGeneratorService = pdfGeneratorService;
 
         var header = new H1("Bee Queen Calculator");
         var description = new Paragraph("Select the date and time for transferring the bee larvae");
-        var button = new Button("Calculate");
+        var calkulateButton = new Button("Calculate");
+        var cleanButton = new Button("Clean");
         var pdfButton = new Button("Print");
 
         add(header);
@@ -39,11 +47,12 @@ public class CalculatorView extends VerticalLayout {
         DateTimePicker dateTimePicker = new DateTimePicker();
         add(dateTimePicker);
 
-        button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        button.addClickShortcut(Key.ENTER);
-        add(button);
+        calkulateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        calkulateButton.addClickShortcut(Key.ENTER);
+        add(calkulateButton,cleanButton);
 
-        button.addClickListener(click -> {
+
+        calkulateButton.addClickListener(click -> {
             CalculatorModel calculate = calculatorService.calculate(dateTimePicker.getValue());
 
             MessageList list = new MessageList();
@@ -130,7 +139,6 @@ public class CalculatorView extends VerticalLayout {
             queenHatchingMessage.setUserColorIndex(3);
 
 
-
             list.setItems(Arrays.asList(
                     beeQueenIsolationMessage,
                     raisingColonyMessage,
@@ -145,11 +153,20 @@ public class CalculatorView extends VerticalLayout {
 
             add(list);
 
+
             pdfButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             pdfButton.addClickShortcut(Key.ENTER);
             add(pdfButton);
         });
 
+        pdfButton.addClickListener(click -> {
+        });
+
+        cleanButton.addClickListener(click -> {
+            UI.getCurrent().getPage().reload();
+        });
 
     }
 }
+
+
